@@ -22,7 +22,7 @@ OS_OBJ = $(addprefix $(OBJ)/, mem.o cpu.o loader.o queue.o os.o sched.o timer.o)
 SCHED_OBJ = $(addprefix $(OBJ)/, cpu.o loader.o mem.o queue.o os.o sched.o timer.o)
 HEADER = $(wildcard $(INCLUDE)/*.h)
 
-all: mem sched os 
+all: mem sched os test_all
 
 # Just compile memory management modules
 mem: $(MEM_OBJ)
