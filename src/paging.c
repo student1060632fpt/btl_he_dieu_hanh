@@ -1,3 +1,4 @@
+// Use to check the functionality of Virtual Memory Engine.
 
 #include "mem.h"
 #include "cpu.h"

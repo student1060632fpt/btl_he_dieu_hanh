@@ -1,3 +1,4 @@
+// Implement the timer.
 
 #include "timer.h"
 #include <stdio.h>

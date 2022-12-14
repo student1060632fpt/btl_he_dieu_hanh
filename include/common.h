@@ -1,3 +1,6 @@
+// Define structs and functions used everywhere in the OS.
+// Như tên gọi của nó
+
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -60,13 +63,13 @@ struct page_table_t {
 
 /* PCB, describe information about a process */
 struct pcb_t {
-	uint32_t pid;	// PID
-	uint32_t priority;
-	struct code_seg_t * code;	// Code segment
-	addr_t regs[10]; // Registers, store address of allocated regions
-	uint32_t pc; // Program pointer, point to the next instruction
-	struct seg_table_t * seg_table; // Page table
-	uint32_t bp;	// Break pointer
+	uint32_t pid;	// Process’s PID
+	uint32_t priority; //Process priority, Scheduler will let processes with higher priority run before the one with lower priority.
+	struct code_seg_t * code;	// Code segment Text segment of the process (To simplify the simulation, we do not put the text segment in RAM).
+	addr_t regs[10]; // Registers, store address of allocated regions, each process could use up to 10 registers numbered from 0 to 9
+	uint32_t pc; // Program pointer, point to the next instruction -The current position of program counter.
+	struct seg_table_t * seg_table; // Page table: Page table used to translate virtual addresses to physical addresses
+	uint32_t bp;	// Break pointer - Break pointer, use to manage the heap segment.
 	uint32_t prio;
 };
 

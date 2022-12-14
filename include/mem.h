@@ -1,3 +1,6 @@
+// Functions used by Virtual Memory Engine
+// các func được sử dụng bởi máy bộ nhớ ảo Virtual Memory Engine
+
 #ifndef MEM_H
 #define MEM_H
 

@@ -1,3 +1,4 @@
+// The whole OS starts running from this file.
 
 #include "cpu.h"
 #include "timer.h"
