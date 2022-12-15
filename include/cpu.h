@@ -1,3 +1,5 @@
+// Define functions used to implement the virtual CPU
+//Xác định các chức năng được sử dụng để triển khai CPU ảo
 
 #ifndef CPU_H
 #define CPU_H

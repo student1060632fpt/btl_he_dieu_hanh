@@ -1,3 +1,5 @@
+// Implement operations on (priority) queues
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "queue.h"

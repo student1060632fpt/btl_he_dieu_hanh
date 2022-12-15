@@ -1,3 +1,6 @@
+// Define functions used by the scheduler
+// định nghĩa hàm được sử dụng bởi scheduler
+
 #ifndef QUEUE_H
 #define QUEUE_H
 
