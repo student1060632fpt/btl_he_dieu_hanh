@@ -68,7 +68,7 @@ struct pcb_t {
 	struct code_seg_t * code;	// Code segment Text segment of the process (To simplify the simulation, we do not put the text segment in RAM).
 	addr_t regs[10]; // Registers, store address of allocated regions, each process could use up to 10 registers numbered from 0 to 9
 	uint32_t pc; // Program pointer, point to the next instruction -The current position of program counter.
-	struct seg_table_t * seg_table; // Page table: Page table used to translate virtual addresses to physical addresses
+	struct page_table_t * seg_table; // Page table: Page table used to translate virtual addresses to physical addresses
 	uint32_t bp;	// Break pointer - Break pointer, use to manage the heap segment.
 	uint32_t prio;
 };
