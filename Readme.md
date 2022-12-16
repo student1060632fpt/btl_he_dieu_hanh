@@ -22,7 +22,7 @@ make clean
 ```
 
 # chia
-shedule : thảo, tuấn
+shedule : thảo
 memory : hải, hòa
 
 check đáp án ở nhánh dap-an
