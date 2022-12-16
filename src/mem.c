@@ -127,7 +127,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 		//check virtual memory 
 		if(_mem_stat[i].proc == 0){
 			blank_page ++;
-			// cheack physical ram (heap ram)
+			// check physical ram (heap ram)
 			if(blank_page == num_pages && proc->bp + num_pages * PAGE_SIZE <= RAM_SIZE){
 				mem_avail = 1;
 				break;
@@ -145,6 +145,73 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 		 * 	- Add entries to segment table page tables of [proc]
 		 * 	  to ensure accesses to allocated memory slot is
 		 * 	  valid. */
+		/*uint32_t num_page_allocated = 0;
+		for(int i = 0; i<NUM_PAGES; i++)  {
+			//update _mem_stat
+			if(_mem_stat[i].proc == 0) {
+				_mem_stat[i].proc = proc->pid;
+				_mem_stat[i].index = num_page_allocated;
+			}
+			//update num_page_allocated
+			//if num_page_allocated == num_pages then stop allocation
+			num_page_allocated++;
+			if (num_page_allocated == num_pages)
+			{
+				_mem_stat[k].next = -1;
+				break;
+			}
+		
+		}
+		
+		
+		*/
+
+		uint32_t num_page_allocated = 0;
+        for (int i = 0, j = 0, k = 0; i < NUM_PAGES; i++)
+        {
+            if (_mem_stat[i].proc == 0)
+            {
+                _mem_stat[i].proc = proc->pid;
+                _mem_stat[i].index = j;
+                if (j != 0)
+                    _mem_stat[k].next = i;
+
+                addr_t physical_addr = i << OFFSET_LEN;
+                addr_t first_lv = get_first_lv(ret_mem + PAGE_SIZE);
+                addr_t second_lv = get_second_lv(ret_mem + j * PAGE_SIZE);
+                int have_first_index = 0;
+                for (int n = 0; n < proc->seg_table->size; n++)
+                {
+                    if (proc->seg_table->table[n].v_index == first_lv)
+                    {
+                        proc->seg_table->table[n].next_lv->table[proc->seg_table->table[n].next_lv->size].v_index = second_lv;
+                        proc->seg_table->table[n].next_lv->table[proc->seg_table->table[n].next_lv->size].p_index = physical_addr >> OFFSET_LEN;
+                        proc->seg_table->table[n].next_lv->size++;
+                        have_first_index = 1;
+                        break;
+                    }
+                }
+                if (have_first_index == 0)
+                {
+                    int n = proc->seg_table->size;
+                    proc->seg_table->size++;
+                    proc->seg_table->table[n].next_lv = (struct trans_table_t *)malloc(sizeof(struct trans_table_t));
+                    proc->seg_table->table[n].next_lv->size++;
+                    proc->seg_table->table[n].v_index = first_lv;
+                    proc->seg_table->table[n].next_lv->table[0].v_index = second_lv;
+                    proc->seg_table->table[n].next_lv->table[0].p_index = physical_addr >> OFFSET_LEN;
+                }
+                k = i;
+                j++;
+                num_page_allocated++;
+                if (num_page_allocated == num_pages)
+                {
+                    _mem_stat[k].next = -1;
+                    break;
+                }
+            }
+        }
+
 	}
 	pthread_mutex_unlock(&mem_lock);
 	return ret_mem;
@@ -159,6 +226,69 @@ int free_mem(addr_t address, struct pcb_t * proc) {
 	 * 	  the process [proc].
 	 * 	- Remember to use lock to protect the memory from other
 	 * 	  processes.  */
+	pthread_mutex_lock(&mem_lock);
+    addr_t physical_addr;
+    if (translate(address, &physical_addr, proc))
+    {
+        int next = -2;
+        int i = 0, j = 0;
+        for (; i < NUM_PAGES; i++)
+        {
+            if (physical_addr == i << OFFSET_LEN)
+            {
+                break;
+            }
+        }
+        next = i;
+	int del_pages = 0;
+        while (next != -1)
+        {
+            _mem_stat[next].proc = 0;
+            next = _mem_stat[next].next;
+            addr_t first_lv = get_first_lv(address + j * PAGE_SIZE);
+            addr_t second_lv = get_second_lv(address + j * PAGE_SIZE);
+            for (int n = 0; n < proc->seg_table->size; n++)
+            {
+                if (proc->seg_table->table[n].v_index == first_lv)
+                {
+                    for (int m = 0; m < proc->seg_table->table[n].next_lv->size; m++)
+                    {
+                        if (proc->seg_table->table[n].next_lv->table[m].v_index == second_lv)
+                        {
+                            int k = 0;
+			    del_pages++;
+                            for (k = m; k < proc->seg_table->table[n].next_lv->size - 1; k++)
+                            {
+                                proc->seg_table->table[n].next_lv->table[k].v_index = proc->seg_table->table[n].next_lv->table[k + 1].v_index;
+                                proc->seg_table->table[n].next_lv->table[k].p_index = proc->seg_table->table[n].next_lv->table[k + 1].p_index;
+                            }
+                            proc->seg_table->table[n].next_lv->table[k].v_index = 0;
+                            proc->seg_table->table[n].next_lv->table[k].p_index = 0;
+                            proc->seg_table->table[n].next_lv->size--;
+                            break;
+                        }
+                    }
+                    if (proc->seg_table->table[n].next_lv->size == 0)
+                    {
+                        free(proc->seg_table->table[n].next_lv);
+                        int m = 0;
+                        for (m = n; m < proc->seg_table->size - 1; m++)
+                        {
+                            proc->seg_table->table[m].v_index = proc->seg_table->table[m + 1].v_index;
+                            proc->seg_table->table[m].next_lv = proc->seg_table->table[m + 1].next_lv;
+                        }
+                        proc->seg_table->table[m].v_index = 0;
+                        proc->seg_table->table[m].next_lv = NULL;
+                        proc->seg_table->size--;
+                    }
+                    break;
+                }
+            }
+            j++;
+        }
+    proc->bp -= del_pages*PAGE_SIZE;
+    }
+    pthread_mutex_unlock(&mem_lock);
 	return 0;
 }
 
