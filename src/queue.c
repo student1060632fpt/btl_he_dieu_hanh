@@ -1,5 +1,3 @@
-// Implement operations on (priority) queues
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "queue.h"
@@ -9,53 +7,39 @@ int empty(struct queue_t * q) {
 }
 
 void enqueue(struct queue_t * q, struct pcb_t * proc) {
-	/* TODO: put a new process to queue [q] */
-	// queue đầy thì ko enqueue
-	if (q->size == MAX_QUEUE_SIZE) {};
-
-	// tìm vị trí chèn
-	for (int i = 0; i< q->size; i++) {
-		if (proc->priority < q->proc[i]->priority) {
-			//dời vị trí các phần tử bắt đầu từ i về sau 1 vị trí
-			for(int j=q->size; j > i; j--) {
-				q->proc[j] = q->proc[j-1];
-			}
-			//nhét phần tử proc vào vị trí i
-			q->proc[i] = proc;
-		}
-	}
-	// tăng size của queue
-	q->size+=1;
+	/* TODO: put a new process to queue [q] */	
+	
+	if (q->size == MAX_QUEUE_SIZE) // Check if queue is full or not
+		return;
+	q->proc[q->size++] = proc;
 }
 
 struct pcb_t * dequeue(struct queue_t * q) {
 	/* TODO: return a pcb whose prioprity is the highest
 	 * in the queue [q] and remember to remove it from q
 	 * */
-	if(empty(q)) {
+	 
+	if (q->size == 0) // first check if ready queue is empty
 		return NULL;
-	} else {
-		// find the smalest priority and index of the first smalest priority
-		// int priority = q->proc[0]->priority;
-		// int index_pri = 0;
-		// for(int i =1; i<q->size; i++) {
-		// 	if(q->proc[i]->priority< priority) {
-		// 		priority = q->proc[i]->priority;
-		// 		index_pri = i;
-		// 	}
-		// }
-
-		struct pcb_t *re_elem = (struct pcb_t *) malloc(sizeof(struct pcb_t));
-		re_elem = q->proc[0];
-
-		for (int i = 0; i<q->size; i++) {
-			q->proc[i] = q->proc[i+1];
+	
+	// If ready queue is not null
+	int highest_pri_index = 0; // Highest Priority Proc's Index
+	int pWalker; // Break point checking where is the highest priority proc's index
+	for (pWalker = 1; pWalker < q->size; pWalker++)
+	{
+		if (q->proc[pWalker]->priority > q->proc[highest_pri_index]->priority)
+		{
+			highest_pri_index = pWalker;
 		}
-
-		q->size --;
-		return re_elem;
 	}
+	struct pcb_t *deq_proc = q->proc[highest_pri_index]; // dequeue proc
+	// shifting queue back
+	for (pWalker = highest_pri_index + 1; pWalker < q->size; pWalker++) 
+	{
+		q->proc[pWalker - 1] = q->proc[pWalker];
+	}
+	q->size--;
 
-	return NULL;
+	return deq_proc;
 }
 

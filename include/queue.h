@@ -1,5 +1,3 @@
-// Functions used to implement queue which holds the PCB of processes
-// Các chức năng được sử dụng để triển khai hàng đợi chứa PCB của các quy trình
 
 #ifndef QUEUE_H
 #define QUEUE_H

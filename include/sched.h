@@ -1,15 +1,7 @@
-// Define functions used by the scheduler
-// định nghĩa hàm được sử dụng bởi scheduler
-
 #ifndef QUEUE_H
 #define QUEUE_H
 
 #include "common.h"
-
-#ifndef MLQ_SCHED
-#define MLQ_SCHED
-#define MAX_PRIO 5
-#endif
 
 int queue_empty(void);
 

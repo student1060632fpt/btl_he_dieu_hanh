@@ -1,4 +1,3 @@
-// Implement the loader 
 
 #include "loader.h"
 #include <stdio.h>
@@ -36,7 +35,7 @@ struct pcb_t * load(const char * path) {
 	proc->pid = avail_pid;
 	avail_pid++;
 	proc->seg_table =
-		(struct page_table_t*)malloc(sizeof(struct page_table_t));
+		(struct seg_table_t*)malloc(sizeof(struct seg_table_t));
 	proc->bp = PAGE_SIZE;
 	proc->pc = 0;
 

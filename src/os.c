@@ -1,16 +1,15 @@
-// The whole OS starts running from this file.
 
 #include "cpu.h"
 #include "timer.h"
 #include "sched.h"
 #include "loader.h"
+#include "mem.h"
 
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define MLQ_SCHED
 static int time_slot;
 static int num_cpus;
 static int done = 0;
@@ -18,9 +17,6 @@ static int done = 0;
 static struct ld_args{
 	char ** path;
 	unsigned long * start_time;
-#ifdef MLQ_SCHED
-	unsigned long * prio;
-#endif
 } ld_processes;
 int num_processes;
 
@@ -41,10 +37,6 @@ static void * cpu_routine(void * args) {
 			/* No process is running, the we load new process from
 		 	* ready queue */
 			proc = get_proc();
-			if (proc == NULL) {
-                           next_slot(timer_id);
-                           continue; /* First load failed. skip dummy load */
-                        }
 		}else if (proc->pc == proc->code->size) {
 			/* The porcess has finish it job */
 			printf("\tCPU %d: Processed %2d has finished\n",
@@ -90,12 +82,11 @@ static void * ld_routine(void * args) {
 	int i = 0;
 	while (i < num_processes) {
 		struct pcb_t * proc = load(ld_processes.path[i]);
-		proc->prio = ld_processes.prio[i];
 		while (current_time() < ld_processes.start_time[i]) {
 			next_slot(timer_id);
 		}
-		printf("\tLoaded a process at %s, PID: %d PRIO: %ld\n",
-			ld_processes.path[i], proc->pid, ld_processes.prio[i]);
+		printf("\tLoaded a process at %s, PID: %d\n",
+			ld_processes.path[i], proc->pid);
 		add_proc(proc);
 		free(ld_processes.path[i]);
 		i++;
@@ -118,21 +109,13 @@ static void read_config(const char * path) {
 	ld_processes.path = (char**)malloc(sizeof(char*) * num_processes);
 	ld_processes.start_time = (unsigned long*)
 		malloc(sizeof(unsigned long) * num_processes);
-#ifdef MLQ_SCHED
-	ld_processes.prio = (unsigned long*)
-		malloc(sizeof(unsigned long) * num_processes);
-#endif
 	int i;
 	for (i = 0; i < num_processes; i++) {
 		ld_processes.path[i] = (char*)malloc(sizeof(char) * 100);
 		ld_processes.path[i][0] = '\0';
 		strcat(ld_processes.path[i], "input/proc/");
 		char proc[100];
-#ifdef MLQ_SCHED
-		fscanf(file, "%lu %s %lu\n", &ld_processes.start_time[i], proc, &ld_processes.prio[i]);
-#else
 		fscanf(file, "%lu %s\n", &ld_processes.start_time[i], proc);
-#endif
 		strcat(ld_processes.path[i], proc);
 	}
 }
@@ -181,6 +164,9 @@ int main(int argc, char * argv[]) {
 
 	/* Stop timer */
 	stop_timer();
+
+	printf("\nMEMORY CONTENT: \n");
+	dump();
 
 	return 0;
 

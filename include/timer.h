@@ -1,6 +1,3 @@
-// Define the timer for the whole system
-// Định nghĩa timer cho cả hệ thống
-
 #ifndef TIMER_H
 #define TIMER_H
 
