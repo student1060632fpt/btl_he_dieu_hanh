@@ -17,7 +17,7 @@ void enqueue(struct queue_t * q, struct pcb_t * proc) {
 	for (int i = 0; i<MAX_QUEUE_SIZE; i++) {
 		if (proc->priority < q->proc[i]->priority) {
 			//dời vị trí các phần tử bắt đầu từ i về sau 1 vị trí
-			for(int j=MAX_QUEUE_SIZE; j > i; j--) {
+			for(int j=q->size; j > i; j--) {
 				q->proc[j] = q->proc[j-1];
 			}
 			//nhét phần tử proc vào vị trí i

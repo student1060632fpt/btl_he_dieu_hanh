@@ -51,9 +51,13 @@ static struct trans_table_t * get_trans_table(
 	 *
 	 * */
 
+
 	int i;
 	for (i = 0; i < page_table->size; i++) {
 		// Enter your code here
+		if(page_table->table[i].v_index == index) {
+			return page_table->table[i].next_lv;
+		};
 	}
 	return NULL;
 
@@ -114,6 +118,17 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 	 * to know whether this page has been used by a process.
 	 * For virtual memory space, check bp (break pointer).
 	 * */
+	// int i;
+	// int num_avail_pages = 0;
+	// for(i = 0; i < NUM_PAGES; i++){//Check if ram memory space is avaiable
+	// 	if(_mem_stat[i].proc == 0){
+	// 		num_avail_pages++;
+	// 		if(num_avail_pages == num_pages && proc->bp + num_pages * PAGE_SIZE <= RAM_SIZE){
+	// 			mem_avail = 1;
+	// 			break;
+	// 		}
+	// 	}
+	// }
 	
 	if (mem_avail) {
 		/* We could allocate new memory region to the process */
