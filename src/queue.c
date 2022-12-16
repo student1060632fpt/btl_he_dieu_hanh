@@ -11,10 +11,10 @@ int empty(struct queue_t * q) {
 void enqueue(struct queue_t * q, struct pcb_t * proc) {
 	/* TODO: put a new process to queue [q] */
 	// queue đầy thì ko enqueue
-	if (q->size == MAX_QUEUE_SIZE) {}
+	if (q->size == MAX_QUEUE_SIZE) {};
 
 	// tìm vị trí chèn
-	for (int i = 0; i<MAX_QUEUE_SIZE; i++) {
+	for (int i = 0; i< q->size; i++) {
 		if (proc->priority < q->proc[i]->priority) {
 			//dời vị trí các phần tử bắt đầu từ i về sau 1 vị trí
 			for(int j=q->size; j > i; j--) {
