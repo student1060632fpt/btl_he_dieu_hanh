@@ -44,6 +44,7 @@ static struct trans_table_t * get_trans_table(
 		addr_t index, 	// Segment level index
 		struct page_table_t * page_table) { // first level table
 	
+// PHẦN MEMORY
 	/*
 	 * TODO: Given the Segment index [index], you must go through each
 	 * row of the segment table [page_table] and check if the v_index
