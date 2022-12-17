@@ -193,6 +193,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
                         break;
                     }
                 }
+				
                 if (have_first_index == 0)
                 {
                     int n = proc->seg_table->size;
