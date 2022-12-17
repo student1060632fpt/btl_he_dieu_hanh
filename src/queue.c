@@ -14,8 +14,8 @@ void enqueue(struct queue_t * q, struct pcb_t * proc) {
 	if (q->size == MAX_QUEUE_SIZE) {};
 
 	// tìm vị trí chèn
-	for (int i = 0; i< q->size; i++) {
-		if (proc->priority < q->proc[i]->priority) {
+	for (int i = 0; i < q->size; i++) {
+		if (proc->prio < q->proc[i]->prio) {
 			//dời vị trí các phần tử bắt đầu từ i về sau 1 vị trí
 			for(int j=q->size; j > i; j--) {
 				q->proc[j] = q->proc[j-1];
@@ -48,7 +48,7 @@ struct pcb_t * dequeue(struct queue_t * q) {
 		struct pcb_t *re_elem = (struct pcb_t *) malloc(sizeof(struct pcb_t));
 		re_elem = q->proc[0];
 
-		for (int i = 0; i<q->size; i++) {
+		for (int i = 0; i<q->size-1; i++) {
 			q->proc[i] = q->proc[i+1];
 		}
 

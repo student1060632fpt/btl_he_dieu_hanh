@@ -94,7 +94,7 @@ static int translate(
 			 * produce the correct physical address and save it to
 			 * [*physical_addr]  */
 			addr_t p_index = trans_table->table[i].p_index;
-			*physical_addr = p_index*PAGE_SIZE + offset;
+			*physical_addr = (p_index << OFFSET_LEN) + offset;
 			return 1;
 		}
 	}
@@ -167,18 +167,20 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 		*/
 
 		uint32_t num_page_allocated = 0;
-        for (int i = 0, j = 0, k = 0; i < NUM_PAGES; i++)
+		int index_segment = 0; //danh so thu tu trang trong 1 sengment
+		int prev_page = 0; //lưu trang truoc de cap nhat cho trang tiep theo trong _mem_stat[prev_page].next
+        for (int i = 0; i < NUM_PAGES; i++)
         {
             if (_mem_stat[i].proc == 0)
             {
                 _mem_stat[i].proc = proc->pid;
-                _mem_stat[i].index = j;
-                if (j != 0)
-                    _mem_stat[k].next = i;
+                _mem_stat[i].index = index_segment;
+                if (index_segment != 0)
+                    _mem_stat[prev_page].next = i;
 
                 addr_t physical_addr = i << OFFSET_LEN;
-                addr_t first_lv = get_first_lv(ret_mem + PAGE_SIZE);
-                addr_t second_lv = get_second_lv(ret_mem + j * PAGE_SIZE);
+                addr_t first_lv = get_first_lv(ret_mem + index_segment*PAGE_SIZE);
+                addr_t second_lv = get_second_lv(ret_mem + index_segment*PAGE_SIZE);
                 int have_first_index = 0;
                 for (int n = 0; n < proc->seg_table->size; n++)
                 {
@@ -201,12 +203,12 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
                     proc->seg_table->table[n].next_lv->table[0].v_index = second_lv;
                     proc->seg_table->table[n].next_lv->table[0].p_index = physical_addr >> OFFSET_LEN;
                 }
-                k = i;
-                j++;
+                prev_page = i;
+                index_segment++;
                 num_page_allocated++;
                 if (num_page_allocated == num_pages)
                 {
-                    _mem_stat[k].next = -1;
+                    _mem_stat[prev_page].next = -1;
                     break;
                 }
             }
